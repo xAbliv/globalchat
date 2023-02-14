@@ -1,87 +1,75 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Global Chat</title>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-  </head>
-  <body>
-    <h1>Global Chat</h1>
-    <div id="chat-window">
-      <ul id="chat-messages"></ul>
-    </div>
-    <form id="chat-form">
-      <input type="text" id="chat-input" />
-      <input type="submit" value="Send" />
-    </form>
-    <script type="text/javascript" src="script.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Global Chat</title>
+  <style>
+    #chat-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #chat-input {
+      width: 80%;
+      height: 2em;
+      font-size: 1.2em;
+      padding: 0.5em;
+    }
+    #chat-messages {
+      width: 80%;
+      height: 20em;
+      overflow-y: scroll;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    #chat-messages li {
+      padding: 0.5em;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <form id="chat-form">
+    <ul id="chat-messages"></ul>
+    <input id="chat-input" type="text">
+    <button type="submit">Send</button>
+  </form>
+  <script>
+    var chatForm = document.querySelector("#chat-form");
+    var chatInput = document.querySelector("#chat-input");
+    var chatMessages = document.querySelector("#chat-messages");
+
+    chatForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      var message = chatInput.value;
+      chatInput.value = "";
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "post.php", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+          var li = document.createElement("li");
+          li.textContent = message;
+          chatMessages.appendChild(li);
+        }
+      };
+      xhr.send("message=" + encodeURIComponent(message));
+    });
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "messages.php", true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        var messages = JSON.parse(xhr.responseText);
+        for (var i = 0; i < messages.length; i++) {
+          var li = document.createElement("li");
+          li.textContent = messages[i];
+          chatMessages.appendChild(li);
+        }
+      }
+    };
+    xhr.send();
+  </script>
+</body>
 </html>
-<style>
-#chat-window {
-  width: 50%;
-  height: 300px;
-  overflow-y: scroll;
-  margin: 0 auto;
-  border: 1px solid black;
-  padding: 8px;
-}
-
-#chat-messages {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#chat-messages li {
-  margin-bottom: 10px;
-}
-
-#chat-form {
-  width: 50%;
-  margin: 20px auto;
-  text-align: center;
-}
-
-#chat-input {
-  width: 60%;
-  padding: 8px;
-  margin-right: 10px;
-}
-</style>
-<script>
-var chatForm = document.querySelector("#chat-form");
-var chatInput = document.querySelector("#chat-input");
-var chatMessages = document.querySelector("#chat-messages");
-
-chatForm.addEventListener("submit", function(event) {
-  event.preventDefault();
-  var message = chatInput.value;
-  chatInput.value = "";
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", "post.php", true);
-  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-      var li = document.createElement("li");
-      li.textContent = message;
-      chatMessages.appendChild(li);
-    }
-  };
-  xhr.send("message=" + encodeURIComponent(message));
-});
-
-var xhr = new XMLHttpRequest();
-xhr.open("GET", "messages.php", true);
-xhr.onreadystatechange = function() {
-  if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-    var messages = JSON.parse(xhr.responseText);
-    for (var i = 0; i < messages.length; i++) {
-      var li = document.createElement("li");
-      li.textContent = messages[i];
-      chatMessages.appendChild(li);
-    }
-  }
-};
-</script>
-
-
